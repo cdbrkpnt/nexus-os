@@ -1,0 +1,14 @@
+[Unit]
+Description=NEXUS Network Filesystem
+Documentation=https://nexus-os.org/docs/network-fs
+After=nexus-identity.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nexus-networkfs --mount /mnt/nexus-root
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

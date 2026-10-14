@@ -1,0 +1,14 @@
+[Unit]
+Description=NEXUS Network Desktop
+Documentation=https://nexus-os.org/docs/desktop
+After=nexus-agents.service graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nexus-desktop --compositor wayland
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

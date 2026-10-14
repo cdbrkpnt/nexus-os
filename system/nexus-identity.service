@@ -1,0 +1,13 @@
+[Unit]
+Description=NEXUS Identity Service
+Documentation=https://nexus-os.org/docs/identity
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nexus-identityd --init
+ExecStart=/usr/bin/nexus-identityd --mount /mnt/nexus-root
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

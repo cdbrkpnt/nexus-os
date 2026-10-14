@@ -1,0 +1,10 @@
+NAME="NEXUS OS"
+VERSION="1.0.0 (Genesis)"
+ID=nexus
+ID_LIKE=alpine
+VERSION_ID=1.0.0
+PRETTY_NAME="NEXUS OS 1.0.0 (Genesis)"
+ANSI_COLOR="0;36"
+HOME_URL="https://nexus-os.org"
+SUPPORT_URL="https://nexus-os.org/support"
+BUG_REPORT_URL="https://nexus-os.org/issues"

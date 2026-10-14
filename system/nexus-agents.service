@@ -1,0 +1,13 @@
+[Unit]
+Description=NEXUS Agent Daemon
+Documentation=https://nexus-os.org/docs/agents
+After=nexus-networkfs.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nexus-agentd
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

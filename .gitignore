@@ -1,0 +1,33 @@
+# Build artifacts
+build/
+output/
+*.iso
+*.img
+*.tar.gz
+
+# Compiled binaries
+*.o
+*.out
+nexus-identityd
+nexus-networkfs
+nexus-wasmrt
+nexus-agentd
+nexus-desktop
+nexus-term
+nexus-files
+nexus-net
+nexus-game
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+vendor/
