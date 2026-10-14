@@ -101,9 +101,17 @@ while true; do
             while true; do
                 read -p "nexus:${CURRENT_DIR}$ " term_cmd
 
-                # Parse command and arguments
-                cmd=${term_cmd%% *}
-                arg=${term_cmd#* }
+                # Skip empty input
+                [ -z "$term_cmd" ] && continue
+
+                # Parse command and arguments properly
+                cmd=$(echo "$term_cmd" | awk '{print $1}')
+                arg=$(echo "$term_cmd" | cut -d' ' -f2-)
+
+                # Fix: if no argument, set arg to empty
+                if [ "$arg" == "$term_cmd" ]; then
+                    arg=""
+                fi
 
                 case $cmd in
                     exit) break ;;
@@ -144,32 +152,42 @@ while true; do
                         ;;
 
                     cd)
-                        if [ -z "$arg" ] || [ "$arg" == "~" ]; then
+                        # Handle cd with no args (go home)
+                        if [ -z "$arg" ]; then
                             CURRENT_DIR="/"
+                        # Handle cd ~
+                        elif [ "$arg" == "~" ]; then
+                            CURRENT_DIR="/"
+                        # Handle cd ..
                         elif [ "$arg" == ".." ]; then
                             if [ "$CURRENT_DIR" != "/" ]; then
                                 CURRENT_DIR="${CURRENT_DIR%/*}"
                                 [ -z "$CURRENT_DIR" ] && CURRENT_DIR="/"
                             fi
+                        # Handle cd to specific path
                         else
-                            # Normalize path
-                            if [[ "$arg" != /* ]]; then
-                                if [ "$CURRENT_DIR" == "/" ]; then
-                                    newpath="/$arg"
-                                else
-                                    newpath="$CURRENT_DIR/$arg"
-                                fi
-                            else
-                                newpath="$arg"
-                            fi
-                            # Remove trailing slash
-                            newpath="${newpath%/}"
-                            [ -z "$newpath" ] && newpath="/"
+                            # Remove trailing slash if present
+                            clean_arg="${arg%/}"
 
+                            # Build full path
+                            if [[ "$clean_arg" == /* ]]; then
+                                # Absolute path
+                                newpath="$clean_arg"
+                            else
+                                # Relative path
+                                if [ "$CURRENT_DIR" == "/" ]; then
+                                    newpath="/$clean_arg"
+                                else
+                                    newpath="$CURRENT_DIR/$clean_arg"
+                                fi
+                            fi
+
+                            # Check if path exists in filesystem
                             if [ -n "${FS[$newpath]}" ]; then
                                 CURRENT_DIR="$newpath"
                             else
                                 echo "cd: no such object: $arg"
+                                echo "Hint: Use 'ls' to see available directories"
                             fi
                         fi
                         ;;
