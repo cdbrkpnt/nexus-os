@@ -77,28 +77,184 @@ while true; do
             echo "Identity: $DID"
             echo "Home Pod: connected (12ms latency)"
             echo ""
-            echo "Type 'exit' to return to desktop"
+            echo "Type 'help' for commands, 'exit' to return to desktop"
             echo ""
+
+            # Simulate filesystem state
+            CURRENT_DIR="/"
+            declare -A FS
+            FS["/"]="Documents/    Photos/    Agents/    Games/"
+            FS["/Documents"]="report.pdf    trading-data.csv    notes.md"
+            FS["/Photos"]="IMG_001.jpg    IMG_002.jpg    screenshot.png"
+            FS["/Agents"]="market-monitor.cfg    news-aggregator.cfg"
+            FS["/Games"]="cyberworld.save    racing.cfg"
+
             while true; do
-                read -p "nexus:~$ " term_cmd
-                case $term_cmd in
+                read -p "nexus:${CURRENT_DIR}$ " term_cmd
+
+                # Parse command and arguments
+                cmd=${term_cmd%% *}
+                arg=${term_cmd#* }
+
+                case $cmd in
                     exit) break ;;
-                    ls) echo "Documents/    Photos/    Agents/    Games/" ;;
-                    agents) 
+
+                    help)
+                        echo "Available commands:"
+                        echo "  ls [path]     - List directory contents"
+                        echo "  cd <path>     - Change directory"
+                        echo "  pwd           - Print working directory"
+                        echo "  cat <file>    - Display file contents"
+                        echo "  agents        - List active agents"
+                        echo "  spawn <type>  - Spawn new agent"
+                        echo "  net <url>     - Fetch network resource"
+                        echo "  id            - Show identity info"
+                        echo "  clear         - Clear terminal"
+                        echo "  exit          - Return to desktop"
+                        ;;
+
+                    ls)
+                        target="${arg:-$CURRENT_DIR}"
+                        # Normalize path
+                        if [[ "$target" != /* ]]; then
+                            if [ "$CURRENT_DIR" == "/" ]; then
+                                target="/$target"
+                            else
+                                target="$CURRENT_DIR/$target"
+                            fi
+                        fi
+                        # Remove trailing slash
+                        target="${target%/}"
+                        [ -z "$target" ] && target="/"
+
+                        if [ -n "${FS[$target]}" ]; then
+                            echo "${FS[$target]}"
+                        else
+                            echo "ls: cannot access '$target': No such object in network filesystem"
+                        fi
+                        ;;
+
+                    cd)
+                        if [ -z "$arg" ] || [ "$arg" == "~" ]; then
+                            CURRENT_DIR="/"
+                        elif [ "$arg" == ".." ]; then
+                            if [ "$CURRENT_DIR" != "/" ]; then
+                                CURRENT_DIR="${CURRENT_DIR%/*}"
+                                [ -z "$CURRENT_DIR" ] && CURRENT_DIR="/"
+                            fi
+                        else
+                            # Normalize path
+                            if [[ "$arg" != /* ]]; then
+                                if [ "$CURRENT_DIR" == "/" ]; then
+                                    newpath="/$arg"
+                                else
+                                    newpath="$CURRENT_DIR/$arg"
+                                fi
+                            else
+                                newpath="$arg"
+                            fi
+                            # Remove trailing slash
+                            newpath="${newpath%/}"
+                            [ -z "$newpath" ] && newpath="/"
+
+                            if [ -n "${FS[$newpath]}" ]; then
+                                CURRENT_DIR="$newpath"
+                            else
+                                echo "cd: no such object: $arg"
+                            fi
+                        fi
+                        ;;
+
+                    pwd)
+                        echo "$CURRENT_DIR"
+                        ;;
+
+                    cat)
+                        if [ -z "$arg" ]; then
+                            echo "cat: missing file operand"
+                        else
+                            # Simulate file contents
+                            case "$arg" in
+                                *.md|*.txt)
+                                    echo "# Sample content for $arg"
+                                    echo "This is a network-native file."
+                                    echo "Content hash: bafybei$(date +%s | md5sum | head -c 16)..."
+                                    ;;
+                                *.csv)
+                                    echo "date,symbol,price,change"
+                                    echo "2026-10-14,NIFTY,19450.20,+1.2%"
+                                    echo "2026-10-14,BTC,67230.50,+2.1%"
+                                    ;;
+                                *.pdf)
+                                    echo "[PDF content would render as native app]"
+                                    echo "Use 'nexus-files open $arg' for full viewer"
+                                    ;;
+                                *)
+                                    echo "cat: $arg: No such file or unsupported format"
+                                    ;;
+                            esac
+                        fi
+                        ;;
+
+                    agents)
                         echo "Active agents:"
                         echo "  agent-0-...  market-monitor    [WAKE-ON-INTENT]"
                         echo "  agent-1-...  news-aggregator   [WAKE-ON-INTENT]"
                         echo "  agent-2-...  presence-tracker  [ALWAYS-ON]"
                         ;;
-                    spawn*)
-                        echo "Spawning agent: ${term_cmd#spawn }"
-                        echo "Agent ID: agent-$(date +%s)"
-                        echo "Status: ACTIVE"
+
+                    spawn)
+                        if [ -z "$arg" ] || [ "$arg" == "$cmd" ]; then
+                            echo "Usage: spawn <agent-type> [options]"
+                            echo "Types: market-monitor, news-aggregator, trading-bot, game-npc"
+                        else
+                            agent_type=${arg%% *}
+                            echo "Spawning agent: $agent_type"
+                            echo "Agent ID: agent-$(date +%s)"
+                            echo "Home Pod: provisioning..."
+                            sleep 0.5
+                            echo "Status: ACTIVE"
+                        fi
                         ;;
-                    *) echo "Command not found: $term_cmd" ;;
+
+                    net)
+                        if [ -z "$arg" ] || [ "$arg" == "$cmd" ]; then
+                            echo "Usage: net <url>"
+                        else
+                            echo "Fetching: $arg"
+                            echo "Type: application/nexus-object+json"
+                            sleep 0.3
+                            echo ""
+                            echo "[UI] Title: Example Content"
+                            echo "[UI] Source: $arg"
+                            echo "[UI] Rendered as native app window"
+                        fi
+                        ;;
+
+                    id)
+                        echo "Identity: $DID"
+                        echo "Home Pod: connected (12ms latency)"
+                        echo "Network: QUIC/HTTP3"
+                        echo "Cache: 3.2/10 GB used"
+                        ;;
+
+                    clear)
+                        clear
+                        ;;
+
+                    *)
+                        if [ -n "$term_cmd" ]; then
+                            echo "Command not found: $cmd"
+                            echo "Type 'help' for available commands"
+                        fi
+                        ;;
                 esac
             done
+
+            # Cleanup
+            unset FS
             ;;
+        
         f|files)
             echo ""
             echo "NEXUS Files v1.0 - Network File Manager"
