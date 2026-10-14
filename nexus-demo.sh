@@ -89,14 +89,37 @@ while true; do
             echo "Type 'help' for commands, 'exit' to return to desktop"
             echo ""
 
-            # Simulate filesystem state
+            # Simulate filesystem state (compatible with bash 3.2)
             CURRENT_DIR="/"
-            declare -A FS
-            FS["/"]="Documents/    Photos/    Agents/    Games/"
-            FS["/Documents"]="report.pdf    trading-data.csv    notes.md"
-            FS["/Photos"]="IMG_001.jpg    IMG_002.jpg    screenshot.png"
-            FS["/Agents"]="market-monitor.cfg    news-aggregator.cfg"
-            FS["/Games"]="cyberworld.save    racing.cfg"
+
+            # Filesystem stored as flat variables (macOS bash 3.2 compatible)
+            FS_ROOT="Documents/    Photos/    Agents/    Games/"
+            FS_Documents="report.pdf    trading-data.csv    notes.md"
+            FS_Photos="IMG_001.jpg    IMG_002.jpg    screenshot.png"
+            FS_Agents="market-monitor.cfg    news-aggregator.cfg"
+            FS_Games="cyberworld.save    racing.cfg"
+
+            # Helper function to get directory contents
+            get_dir_contents() {
+                local path="$1"
+                case "$path" in
+                    "/") echo "$FS_ROOT" ;;
+                    "/Documents") echo "$FS_Documents" ;;
+                    "/Photos") echo "$FS_Photos" ;;
+                    "/Agents") echo "$FS_Agents" ;;
+                    "/Games") echo "$FS_Games" ;;
+                    *) echo "" ;;
+                esac
+            }
+
+            # Helper function to check if directory exists
+            dir_exists() {
+                local path="$1"
+                case "$path" in
+                    "/"|"/Documents"|"/Photos"|"/Agents"|"/Games") return 0 ;;
+                    *) return 1 ;;
+                esac
+            }
 
             while true; do
                 read -p "nexus:${CURRENT_DIR}$ " term_cmd
@@ -144,8 +167,9 @@ while true; do
                         target="${target%/}"
                         [ -z "$target" ] && target="/"
 
-                        if [ -n "${FS[$target]}" ]; then
-                            echo "${FS[$target]}"
+                        contents=$(get_dir_contents "$target")
+                        if [ -n "$contents" ]; then
+                            echo "$contents"
                         else
                             echo "ls: cannot access '$target': No such object in network filesystem"
                         fi
@@ -183,7 +207,7 @@ while true; do
                             fi
 
                             # Check if path exists in filesystem
-                            if [ -n "${FS[$newpath]}" ]; then
+                            if dir_exists "$newpath"; then
                                 CURRENT_DIR="$newpath"
                             else
                                 echo "cd: no such object: $arg"
@@ -278,8 +302,6 @@ while true; do
                 esac
             done
 
-            # Cleanup
-            unset FS
             ;;
         
         f|files)
