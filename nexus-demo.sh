@@ -45,28 +45,37 @@ clear
 
 # Simulate desktop
 while true; do
-    echo "╔═══════════════════════════════════════════════════════════════════════════════╗"
-    echo "║  NEXUS    Network: ● Connected    Latency: 12ms    $DID  ║"
-    echo "╠══════════════╦══════════════════════════════════════════════════╦═════════════╣"
-    echo "║ LIVE TILES   ║                                                  ║ PRESENCE    ║"
-    echo "║              ║              NEXUS Desktop                       ║             ║"
-    echo "║ NIFTY        ║                                                  ║ ● You       ║"
-    printf "║ 19,45%-6s  ║   ┌────────┐  ┌────────┐  ┌────────┐          ║ ● Alice     ║
-" "+1.2%"
-    echo "║              ║   │Terminal│  │ Files  │  │ Game   │          ║   (doc1)    ║"
-    echo "║ BTC          ║   │        │  │        │  │ Stream │          ║             ║"
-    printf "║ \$%-11s║   │  >_    │  │  📁    │  │  🎮    │          ║ ● Bob       ║
-" "67,230"
-    echo "║ +2.1%        ║   └────────┘  └────────┘  └────────┘          ║   (game)    ║"
-    echo "║              ║                                                  ║             ║"
-    echo "║ Agents: 3    ║   ┌────────┐  ┌────────┐  ┌────────┐          ║             ║"
-    echo "║              ║   │Browser │  │ Agent  │  │Settings│          ║             ║"
-    echo "║ Network FS   ║   │ Killer │  │ Monitor│  │        │          ║             ║"
-    echo "║ Synced: 2s   ║   │   🌐   │  │   🤖   │  │   ⚙️   │          ║             ║"
-    echo "║ Cache: 3/10GB║   └────────┘  └────────┘  └────────┘          ║             ║"
-    echo "╠══════════════╩══════════════════════════════════════════════════╩═════════════╣"
-    echo "║  Commands: [t]erminal  [f]iles  [n]et  [g]ame  [a]gents  [q]uit               ║"
-    echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
+    # Clear screen and draw desktop
+    clear
+
+    # Header
+    printf "╔══════════════════════════════════════════════════════════════════════════════╗\n"
+    printf "║  NEXUS OS    Network: ● Connected    Latency: 12ms    Identity: %s...  ║\n" "${DID:0:24}"
+    printf "╠══════════════╦══════════════════════════════════════════════════╦════════════╣\n"
+
+    # Row 1: Tiles | Desktop | Presence
+    printf "║ LIVE TILES   ║                                                  ║ PRESENCE   ║\n"
+    printf "║              ║              NEXUS Desktop                       ║            ║\n"
+    printf "║ NIFTY        ║                                                  ║ ● You      ║\n"
+    printf "║ 19,450       ║   ┌────────┐  ┌────────┐  ┌────────┐           ║ ● Alice    ║\n"
+    printf "║ +1.2%%        ║   │Terminal│  │ Files  │  │ Game   │           ║   (doc1)   ║\n"
+    printf "║              ║   │        │  │        │  │ Stream │           ║            ║\n"
+    printf "║ BTC          ║   │   >_   │  │   📁   │  │   🎮   │           ║ ● Bob      ║\n"
+    printf "║ $67,230      ║   └────────┘  └────────┘  └────────┘           ║   (game)   ║\n"
+    printf "║ +2.1%%        ║                                                  ║            ║\n"
+    printf "║              ║                                                  ║            ║\n"
+
+    # Row 2: Stats | More apps | Empty
+    printf "║ Agents: 3    ║   ┌────────┐  ┌────────┐  ┌────────┐           ║            ║\n"
+    printf "║              ║   │Browser │  │ Agent  │  │Settings│           ║            ║\n"
+    printf "║ Network FS   ║   │ Killer │  │ Monitor│  │        │           ║            ║\n"
+    printf "║ Synced: 2s   ║   │   🌐   │  │   🤖   │  │   ⚙️   │           ║            ║\n"
+    printf "║ Cache:3/10GB ║   └────────┘  └────────┘  └────────┘           ║            ║\n"
+
+    # Footer
+    printf "╠══════════════╩══════════════════════════════════════════════════╩════════════╣\n"
+    printf "║  Commands: [t]erminal  [f]iles  [n]et  [g]ame  [a]gents  [q]uit              ║\n"
+    printf "╚══════════════════════════════════════════════════════════════════════════════╝\n"
 
     read -p "nexus:~$ " cmd
 
